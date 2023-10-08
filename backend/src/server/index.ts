@@ -26,7 +26,10 @@ const app = new Elysia()
   .group('/api', (api) =>
     api
       .use(
-        cors({ origin: [FRONTEND_URL_ORIGIN, CHROME_EXTENSION_URL_ORIGIN 'www.youtube.com'], allowedHeaders: ['Content-Type', 'Authorization'] }),
+        cors({
+          origin: [FRONTEND_URL_ORIGIN, CHROME_EXTENSION_URL_ORIGIN, 'www.youtube.com'],
+          allowedHeaders: ['Content-Type', 'Authorization'],
+        }),
       )
       .group('/auth', (auth) =>
         auth.guard({ body: t.Object({ email: t.String({ format: 'email' }), password: t.String() }) }, (guarded) =>
