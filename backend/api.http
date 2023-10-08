@@ -1,0 +1,44 @@
+### Basic POST items
+
+POST http://localhost:3000/api/v1/items HTTP/1.1
+content-type: application/json
+
+[{
+    "videoTitle": "sample",
+    "videoId": "juejue",
+    "channelId": "qweqwe"
+}]
+
+### POST items with multiple real items
+
+POST http://localhost:3000/api/v1/items HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTEsImVtYWlsIjoicXdlcXdlQHF3ZXF3ZS5jb20iLCJwcmVmZXJyZWRMYW5ndWFnZSI6IiJ9.MRAntmhlp6rb_RktkNlgKXT1-5ud2zbB8vW_ePMq4sw
+
+[
+    {"videoTitle":"Los MEJORES Cascos Gaming INALÁMBRICOS del 2022","videoId":"Faon55nT8MI","channelId":"/@new3sc"},
+    {"videoTitle":"We Bought a Giant Movie CD Player and its AMAZING","videoId":"z9XWN7u8mSU","channelId":"/@LinusTechTips"},
+    {"videoTitle":"My YouTuber merch is not the best.. :(","videoId":"akxU62laPMk","channelId":"/@LinusTechTips"}
+]
+
+
+### Basic GET items
+
+GET http://localhost:3000/api/v1/search?q=us HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTEsImVtYWlsIjoicXdlcXdlQHF3ZXF3ZS5jb20iLCJwcmVmZXJyZWRMYW5ndWFnZSI6IiJ9.MRAntmhlp6rb_RktkNlgKXT1-5ud2zbB8vW_ePMq4sw
+
+
+### Auth Login
+
+POST http://localhost:3000/auth/login HTTP/1.1
+content-type: application/json
+
+{"email": "qweqwe@qweqwe.com", "password": "qweqwe"}
+
+
+### Auth Signup
+
+POST http://localhost:3000/auth/signup HTTP/1.1
+content-type: application/json
+
+{"email": "qweqwe@qweqwe.com", "password": "qweqwe"}

@@ -1,0 +1,22 @@
+{
+  "name": "yourarch-companion",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "This is the companion extension for [YourArch](https://github.com/victor141516/YourArch) (you can find more info in that repo)",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "tailwind:watch": "npx tailwindcss -i ./tailwind.css -o ./popup.css --watch",
+    "tailwind:build": "npx tailwindcss -i ./tailwind.css -o ./popup.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victor141516/YourArch-ng.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/victor141516/YourArch-ng/issues"
+  },
+  "homepage": "https://github.com/victor141516/YourArch-ng#readme"
+}

@@ -1,0 +1,25 @@
+{
+  "name": "YourArch-ng",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@elysiajs/bearer": "^0.7.0",
+    "@elysiajs/cors": "^0.7.0",
+    "@elysiajs/jwt": "^0.7.0",
+    "@sinclair/typebox": "^0.31.17",
+    "@supercharge/promise-pool": "^3.1.0",
+    "@types/pg": "^8.10.3",
+    "elysia": "latest",
+    "html-entities": "^2.4.0",
+    "limiter-es6-compat": "^2.1.2",
+    "pg": "^8.11.3",
+    "striptags": "^3.2.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "module": "src/index.js"
+}

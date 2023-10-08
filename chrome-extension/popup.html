@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>YourArch Companion</title>
+  <script type="module" src="./popup.mjs"></script>
+  <link rel="stylesheet" href="./popup.css">
+</head>
+
+<body class="bg-slate-950 text-slate-100 w-96 h-72 p-4">
+  <div class="flex mb-4 items-center">
+    <div class="flex-1 flex items-center gap-4 text-2xl">
+      <h1>YourArch Companion</h1>
+      <h1 id="confirm" class="hidden">✅</h1>
+    </div>
+    <button id="logout"
+      class="hidden rounded text-xs px-1 py-0.5 text-slate-950 bg-slate-100 border border-slate-100 hover:bg-slate-300 active:bg-slate-400">Logout</button>
+  </div>
+
+  <form id="authentication" class="flex flex-col gap-2 items-center">
+    <p>You must log in to your YourArch account. If you're not already registered, you can sign up clicking <a
+        class="text-" href="https://yourarch.viti.site/login/signup">here</a></p>
+    <label>
+      <p>Email</p>
+      <input class="w-full border rounded px-2 py-1 text-slate-950" id="email" type="text" name="email">
+    </label>
+    <label>
+      <p>Password</p>
+      <input class="w-full border rounded px-2 py-1 text-slate-950" id="password" type="password" name="password">
+    </label>
+    <button
+      class="mt-2 rounded px-2 py-1 text-slate-950 bg-slate-100 border border-slate-100 hover:bg-slate-300 active:bg-slate-400"
+      type="submit">Login</button>
+  </form>
+
+  <div id="all-done" class="hidden">
+    <h2>Everything is set up!</h2>
+    <p>The extension will work in the background and won't bother you.</p>
+  </div>
+
+  <div id="backend-url" class="flex items-end gap-2 hidden">
+    <label>
+      <p>Backend URL</p>
+      <input class="w-full border rounded px-2 py-1 text-slate-950" id="url" type="text" name="server">
+    </label>
+    <button
+      class="rounded px-2 py-1 text-slate-950 bg-slate-100 border border-slate-100 hover:bg-slate-300 active:bg-slate-400"
+      id="save">Save</button>
+  </div>
+</body>
+
+</html>

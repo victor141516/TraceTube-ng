@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=yourarch
+      - POSTGRES_USER=yourarch
+      - POSTGRES_DB=yourarch
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./database:/var/lib/postgresql/data/pgdata
+    ports:
+      - 55432:5432
+
+  api:
+    image: victor141516/yourarch-ng
+    build: .
+    environment:
+      - DATABASE_URI=postgres://yourarch:yourarch@postgres:5432/yourarch
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+
+  worker:
+    image: victor141516/yourarch-ng
+    build: .
+    environment:
+      - DATABASE_URI=postgres://yourarch:yourarch@postgres:5432/yourarch
+      - MODE=worker
+    depends_on:
+      - postgres
+
+  
