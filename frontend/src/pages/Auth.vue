@@ -14,12 +14,12 @@ const state = reactive<LoginRequest>({
 })
 
 const onLogin = async () => {
-  const auth = await request('/auth/login', state)
+  const auth = await request('/api/auth/login', state)
   store.auth = { ...auth, authenticated: true }
 }
 
 const onSignup = async () => {
-  const auth = await request('/auth/signup', state)
+  const auth = await request('/api/auth/signup', state)
   store.auth = { ...auth, authenticated: true }
 }
 </script>
