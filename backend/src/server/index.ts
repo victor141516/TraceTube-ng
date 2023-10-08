@@ -2,7 +2,7 @@ import { bearer } from '@elysiajs/bearer'
 import { cors } from '@elysiajs/cors'
 import jwt from '@elysiajs/jwt'
 import { Elysia, t } from 'elysia'
-import { FRONTEND_URL_ORIGIN, JWT_SECRET } from '../config'
+import { CHROME_EXTENSION_URL_ORIGIN, FRONTEND_URL_ORIGIN, JWT_SECRET } from '../config'
 import { getUser, insertQueueItems, saveUser, searchSubtitlePhrasePart } from '../db'
 import { postItemsRequestSchema } from '../parsers'
 import { getHash, verifyHash } from '../utils/hash'
@@ -26,7 +26,7 @@ const app = new Elysia()
   .group('/api', (api) =>
     api
       .use(
-        cors({ origin: [FRONTEND_URL_ORIGIN, 'www.youtube.com'], allowedHeaders: ['Content-Type', 'Authorization'] }),
+        cors({ origin: [FRONTEND_URL_ORIGIN, CHROME_EXTENSION_URL_ORIGIN 'www.youtube.com'], allowedHeaders: ['Content-Type', 'Authorization'] }),
       )
       .group('/auth', (auth) =>
         auth.guard({ body: t.Object({ email: t.String({ format: 'email' }), password: t.String() }) }, (guarded) =>

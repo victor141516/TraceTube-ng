@@ -1,4 +1,4 @@
-import { KEYS, chromeStore, getBackendUrl } from './common.mjs';
+import { KEYS, chromeStore, getBackendUrl } from './common.js';
 
 const showConfirm = () => {
   const confirmEl = document.getElementById('confirm');
