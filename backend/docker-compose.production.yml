@@ -1,34 +1,24 @@
 version: "3.9"
+
+networks:
+  caddywork:
+    external: true
+
 services:
   postgres:
-    image: postgres
-    environment:
-      - POSTGRES_PASSWORD=tracetube
-      - POSTGRES_USER=tracetube
-      - POSTGRES_DB=tracetube
-      - PGDATA=/var/lib/postgresql/data/pgdata
-    volumes:
-      - ./database:/var/lib/postgresql/data/pgdata
-    ports:
-      - 55432:5432
+    networks:
+      - default
 
   api:
-    image: victor141516/tracetube-ng
-    build: .
     environment:
       - DATABASE_URI=postgres://tracetube:tracetube@postgres:5432/tracetube
-    ports:
-      - 3000:3000
-    depends_on:
-      - postgres
+      - CHROME_EXTENSION_URL_ORIGIN=jonllnplkagdoikjajkgdbjcojnhjjoe
+    networks:
+      - default
+      - caddywork
+    env_file:
+      - $HOME/secrets/TraceTube-ng/env
 
   worker:
-    image: victor141516/tracetube-ng
-    build: .
-    environment:
-      - DATABASE_URI=postgres://tracetube:tracetube@postgres:5432/tracetube
-      - MODE=worker
-    depends_on:
-      - postgres
-
-  
+    networks:
+      - default
