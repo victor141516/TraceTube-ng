@@ -4,7 +4,7 @@ const common = import(commonFileSrc);
 const HISTORY_URL = 'https://www.youtube.com/feed/history';
 const INTERVAL = 3600_000;
 const IFRAME_ID = 'the-tracetube-iframe';
-const DEBUG = false;
+const DEBUG = true;
 
 const log = (...args) => {
   if (DEBUG) console.debug(...args);

@@ -8,18 +8,28 @@ import { LoginRequest, request } from '@/requests/backend'
 import { store } from '@/store'
 import { reactive } from 'vue'
 
-const state = reactive<LoginRequest>({
+const state = reactive<LoginRequest & { errorMessage: string | null }>({
   email: '',
   password: '',
+  errorMessage: null,
 })
 
 const onLogin = async () => {
-  const auth = await request('/api/auth/login', state)
-  store.auth = { ...auth, authenticated: true }
+  try {
+    const auth = await request('/api/auth/login', { email: state.email, password: state.password })
+    store.auth = { ...auth, authenticated: true }
+  } catch (error) {
+    if (error instanceof Error) {
+      state.errorMessage = error.message
+      setTimeout(() => {
+        state.errorMessage = null
+      }, 3000)
+    }
+  }
 }
 
 const onSignup = async () => {
-  const auth = await request('/api/auth/signup', state)
+  const auth = await request('/api/auth/signup', { email: state.email, password: state.password })
   store.auth = { ...auth, authenticated: true }
 }
 </script>
@@ -32,7 +42,7 @@ const onSignup = async () => {
     </TabsList>
     <TabsContent value="log-in">
       <form @submit.prevent="onLogin">
-        <Card>
+        <Card class="transition-all">
           <CardHeader>
             <CardTitle>Log in</CardTitle>
           </CardHeader>
@@ -46,8 +56,9 @@ const onSignup = async () => {
               <Input required v-model="state.password" id="password" type="password" />
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter class="flex flex-col gap-3">
             <Button>Send</Button>
+            <span v-if="state.errorMessage" class="text-red-500">{{ state.errorMessage }}</span>
           </CardFooter>
         </Card>
       </form>

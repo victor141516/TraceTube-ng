@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  postgres:
+    ports:
+      - 55432:5432
+
+  api:
+    ports:
+      - 3000:3000
+
+  worker: {}

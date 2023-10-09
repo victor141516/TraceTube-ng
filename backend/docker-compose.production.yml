@@ -9,12 +9,16 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - ./database:/var/lib/postgresql/data/pgdata
+    ports:
+      - 55432:5432
 
   api:
     image: victor141516/tracetube-ng
     build: .
     environment:
       - DATABASE_URI=postgres://tracetube:tracetube@postgres:5432/tracetube
+    ports:
+      - 3000:3000
     depends_on:
       - postgres
 

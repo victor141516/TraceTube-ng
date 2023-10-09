@@ -27,7 +27,7 @@ const app = new Elysia()
     api
       .use(
         cors({
-          origin: [FRONTEND_URL_ORIGIN, CHROME_EXTENSION_URL_ORIGIN, 'www.youtube.com'],
+          origin: [FRONTEND_URL_ORIGIN, CHROME_EXTENSION_URL_ORIGIN, 'www.youtube.com'].filter(Boolean) as string[],
           allowedHeaders: ['Content-Type', 'Authorization'],
         }),
       )
@@ -35,10 +35,11 @@ const app = new Elysia()
         auth.guard({ body: t.Object({ email: t.String({ format: 'email' }), password: t.String() }) }, (guarded) =>
           guarded
             .post('/login', async ({ jwt, body }) => {
+              const error = new Error('Invalid email or password')
               const user = await getUser(body.email)
-              if (!user || !(await verifyHash(body.password, user.passwordHash))) {
-                throw new Error('Invalid email or password')
-              }
+              if (!user) throw error
+              const verified = await verifyHash(body.password, user.passwordHash)
+              if (!verified) throw error
               const token = await jwt.sign({
                 id: user.id,
                 email: body.email,

@@ -24,7 +24,7 @@ const handleLogout = () => {
         <User class="h-6 w-6" />
       </Avatar>
     </DropdownMenuTrigger>
-    <DropdownMenuContent class="w-56">
+    <DropdownMenuContent class="w-56" :align="'end'">
       <a href="https://github.com/victor141516/TraceTube-ng">
         <DropdownMenuItem class="cursor-pointer">
           <Github class="mr-2 h-4 w-4" />

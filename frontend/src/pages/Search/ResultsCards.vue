@@ -94,7 +94,7 @@ const handleRight = (videoId: VideoId) => {
                   <ArrowLeft />
                 </button>
                 <div
-                  class="h-full flex-1 py-1 px-2 bg-primary/90 pointer-events-none flex items-center overflow-x-hidden"
+                  class="h-full flex-1 py-1 px-2 bg-primary/90 pointer-events-none flex items-center overflow-hidden"
                 >
                   <TransitionGroup
                     :name="`slide-${animationDirection}`"
