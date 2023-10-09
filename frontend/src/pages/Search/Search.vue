@@ -29,11 +29,13 @@ const state = reactive<{
   nextPageCursor: null | number
   searchResults: null | SearchResponse
   viewMode: 'list' | 'cards'
+  fetching: boolean
 }>({
   searchTerm: initialQueryValue,
   nextPageCursor: null,
   searchResults: null,
   viewMode: initialViewModeValue,
+  fetching: false,
 })
 
 const updateUrl = () => {
@@ -70,10 +72,12 @@ const fetchResults = async () => {
 
 const onSearchClick = async () => {
   if (!state.searchTerm) return
+  state.fetching = true
   state.nextPageCursor = null
   state.searchResults = null
   updateUrl()
   await fetchResults()
+  state.fetching = false
 }
 if (initialQueryValue) onSearchClick()
 
@@ -107,7 +111,7 @@ useInfiniteScroll(
         <CardFooter>
           <div class="flex">
             <div class="flex-1 mt-auto">
-              <Button>Search</Button>
+              <Button :disabled="state.fetching" class="transition-all">Search</Button>
             </div>
             <div class="flex gap-2">
               <label for="view-type-cards" class="flex mt-auto">
