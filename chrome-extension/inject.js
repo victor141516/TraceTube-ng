@@ -3,7 +3,7 @@ const common = import(commonFileSrc);
 
 const HISTORY_URL = 'https://www.youtube.com/feed/history';
 const INTERVAL = 3600_000;
-const IFRAME_ID = 'the-yourarch-iframe';
+const IFRAME_ID = 'the-tracetube-iframe';
 const DEBUG = false;
 
 const log = (...args) => {
@@ -57,7 +57,7 @@ function scrapeHistory() {
 
 /** @param {{videoTitle: string, videoId: string, channelId: string}[]} items */
 async function sendItemsToBackend(items) {
-  if (DEBUG) log('YourArch: Sending items to backend');
+  if (DEBUG) log('TraceTube: Sending items to backend');
   return fetch(`${await getBackendUrl()}/api/v1/items`, {
     mode: 'cors',
     method: 'POST',
@@ -94,21 +94,21 @@ const loadEvent = waitForLoadEvent();
 
 const doInIframe = async () => {
   // This will be executed in the iframe
-  log('YourArch: Scraping started');
+  log('TraceTube: Scraping started');
   await loadEvent;
-  log('YourArch: iframe loaded');
-  log('YourArch: Waiting for history to load');
+  log('TraceTube: iframe loaded');
+  log('TraceTube: Waiting for history to load');
   await waitForLoadHistory();
   try {
-    log('YourArch: Scraping history');
+    log('TraceTube: Scraping history');
     const historyData = scrapeHistory();
-    log('YourArch: Sending history to backend');
+    log('TraceTube: Sending history to backend');
     await sendItemsToBackend(historyData);
-    log('YourArch: History sent to backend');
+    log('TraceTube: History sent to backend');
   } finally {
-    log('YourArch: Checking if iframe should be removed');
+    log('TraceTube: Checking if iframe should be removed');
     if (window.parent.window.location.href !== HISTORY_URL) {
-      log('YourArch: Sending message to remove iframe');
+      log('TraceTube: Sending message to remove iframe');
       window.parent.window.postMessage('removetheiframe', '*');
     }
   }
@@ -116,51 +116,51 @@ const doInIframe = async () => {
 
 const doInMainFrame = async () => {
   // This will be executed in the main frame to create a iframe containing the history
-  log('YourArch: Injecting iframe started');
+  log('TraceTube: Injecting iframe started');
 
   const isInsideIframe = window.parent !== window;
   if (isInsideIframe) {
-    log('YourArch: Inside iframe (embedded video), aborting');
+    log('TraceTube: Inside iframe (embedded video), aborting');
     return;
   }
 
-  log('YourArch: Checking if it is time to scrape');
+  log('TraceTube: Checking if it is time to scrape');
   const lastCheck = (await chromeStore.get(KEYS.lastCheck)) ?? 0;
   const isTimeToScrape = lastCheck + INTERVAL - 1000 < new Date().getTime();
-  log('YourArch: Last check:', new Date(lastCheck));
+  log('TraceTube: Last check:', new Date(lastCheck));
 
   if (isTimeToScrape || DEBUG) {
-    log('YourArch: Injecting iframe');
+    log('TraceTube: Injecting iframe');
     await loadEvent;
     injectHistoryIframe();
-    log('YourArch: Waiting for iframe to load (from main frame)');
+    log('TraceTube: Waiting for iframe to load (from main frame)');
     window.addEventListener(
       'message',
       async ({ data }) => {
         if (data === 'removetheiframe') {
-          log('YourArch: Removing iframe');
+          log('TraceTube: Removing iframe');
           removeIframe();
-          log('YourArch: iframe removed');
-          log('YourArch: Setting last check');
+          log('TraceTube: iframe removed');
+          log('TraceTube: Setting last check');
           chromeStore.set(KEYS.lastCheck, new Date().getTime());
         }
       },
       { capture: false }
     );
-  } else log('YourArch: Too soon to scrape again');
+  } else log('TraceTube: Too soon to scrape again');
 };
 
 (async () => {
-  log('YourArch: Hello');
-  log('YourArch: Waiting for common import');
+  log('TraceTube: Hello');
+  log('TraceTube: Waiting for common import');
   await common;
-  log('YourArch: Checking if user is authenticated');
+  log('TraceTube: Checking if user is authenticated');
   if (!(await chromeStore.get(KEYS.authToken))) {
-    log('YourArch: User is not authenticated, aborting');
+    log('TraceTube: User is not authenticated, aborting');
     return;
   }
 
-  log('YourArch: Checking whether scrape or inject iframe');
+  log('TraceTube: Checking whether scrape or inject iframe');
   if (window.location.href === HISTORY_URL) {
     await doInIframe();
   } else {

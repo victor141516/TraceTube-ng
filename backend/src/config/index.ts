@@ -1,6 +1,6 @@
 export const PORT = Number.parseInt(process.env.PORT || '3000')
 export const DATABASE_URI =
-  process.env.DATABASE_URI || 'postgresql://yourarch:yourarch@localhost:55432/yourarch?schema=public'
+  process.env.DATABASE_URI || 'postgresql://tracetube:tracetube@localhost:55432/tracetube?schema=public'
 export const MODE = (process.env.MODE || 'server') === 'server' ? 'server' : 'worker'
 
 const DEFAULT_JTW_SECRET = 'CHANGE ME'

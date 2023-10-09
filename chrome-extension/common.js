@@ -32,8 +32,5 @@ export const KEYS = /** @type {const} */ ({
  * @returns {Promise<string>}
  */
 export async function getBackendUrl() {
-  return (
-    (await chromeStore.get('backendUrl')) ??
-    'https://yourarch-ingestor.viti.site'
-  );
+  return (await chromeStore.get('backendUrl')) ?? 'https://tracetube.viti.site';
 }

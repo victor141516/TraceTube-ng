@@ -1,42 +1,51 @@
 <script setup lang="ts">
 import UserMenu from '@/components/sections/UserMenu.vue'
 import { store } from '@/store'
-import { onMounted, watchEffect } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
-const handleAuthChanges = () => {
+const handleAuthChanges = async () => {
   if (route.meta.requiresAuth && !store.auth.authenticated) {
-    router.push({ name: 'login' })
+    await router.push({ name: 'login' })
   }
 }
-const handleAuthRouteOnAuthenticatedUser = () => {
+const handleAuthRouteOnAuthenticatedUser = async () => {
   // TODO: make this think part of the routes meta
   if (['login', 'signup'].includes((route.name ?? '').toString()) && store.auth.authenticated) {
-    router.push({ name: 'root' })
+    await router.push({ name: 'root' })
   }
 }
 
-const handleRootRoute = () => {
+const handleRootRoute = async () => {
   if (route.name === 'root') {
     if (store.auth.authenticated) {
-      router.push({ name: 'search' })
+      await router.push({ name: 'search' })
     } else {
-      router.push({ name: 'login' })
+      await router.push({ name: 'login' })
     }
   }
 }
 
-watchEffect(() => {
-  handleAuthChanges()
-  handleAuthRouteOnAuthenticatedUser()
-  handleRootRoute()
-})
-onMounted(() => {
-  handleAuthChanges()
-  handleAuthRouteOnAuthenticatedUser()
-  handleRootRoute()
+const ready = ref(false)
+
+watch(
+  () => [route, store.auth.authenticated],
+  async () => {
+    console.log('watcheffect')
+    await router.isReady()
+    await handleAuthChanges()
+    await handleAuthRouteOnAuthenticatedUser()
+    await handleRootRoute()
+  },
+)
+onMounted(async () => {
+  await router.isReady()
+  await handleAuthChanges()
+  await handleAuthRouteOnAuthenticatedUser()
+  await handleRootRoute()
+  ready.value = true
 })
 </script>
 
@@ -45,6 +54,6 @@ onMounted(() => {
     <div v-if="store.auth.authenticated" class="self-end">
       <UserMenu />
     </div>
-    <RouterView />
+    <RouterView v-if="ready" />
   </div>
 </template>

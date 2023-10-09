@@ -48,15 +48,6 @@ onMounted(() => {
 })
 
 watch(
-  () => state.searchTerm,
-  () => {
-    state.nextPageCursor = null
-    state.searchResults = null
-    updateUrl()
-  },
-)
-
-watch(
   () => state.viewMode,
   () => {
     el.value?.scrollTo(0, 0)
@@ -64,24 +55,34 @@ watch(
   },
 )
 
-const onSearch = async () => {
-  if (!state.searchTerm) return
-  const params: SearchRequest = { q: state.searchTerm }
+const calculateFetchParams = () => {
+  const params: SearchRequest = { q: state.searchTerm.toLowerCase() }
   if (state.nextPageCursor) params.p = state.nextPageCursor
-  const results = await request('/api/v1/search', params)
-  state.nextPageCursor = results[results.length - 1]?.cursor ?? null
+  return params
+}
 
+const fetchResults = async () => {
+  const results = await request('/api/v1/search', calculateFetchParams())
+  state.nextPageCursor = results[results.length - 1]?.cursor ?? null
   state.searchResults ??= []
   state.searchResults = [...state.searchResults, ...results]
 }
-if (initialQueryValue) onSearch()
+
+const onSearchClick = async () => {
+  if (!state.searchTerm) return
+  state.nextPageCursor = null
+  state.searchResults = null
+  updateUrl()
+  await fetchResults()
+}
+if (initialQueryValue) onSearchClick()
 
 const el = ref<HTMLElement>(document.querySelector('html')!)
 useInfiniteScroll(
   el,
-  () => {
+  async () => {
     if (state.nextPageCursor) {
-      onSearch()
+      await fetchResults()
     }
   },
   { distance: 500, interval: 4000 },
@@ -89,8 +90,8 @@ useInfiniteScroll(
 </script>
 
 <template>
-  <div class="flex flex-col gap-8 w-full overflow-y-hidden">
-    <form @submit.prevent="onSearch">
+  <div class="h-full flex flex-col gap-8 w-full overflow-y-hidden">
+    <form @submit.prevent="onSearchClick">
       <Card>
         <CardHeader>
           <CardTitle>Search in your videos</CardTitle>
@@ -140,9 +141,14 @@ useInfiniteScroll(
         </CardFooter>
       </Card>
     </form>
-    <div class="overflow-y-auto" ref="el" v-if="state.searchResults">
+    <div class="overflow-y-auto" ref="el" v-if="state.searchResults && state.searchResults.length > 0">
       <ResultsList v-if="state.viewMode === 'list'" :items="state.searchResults" />
       <ResultsCards v-if="state.viewMode === 'cards'" :items="state.searchResults" />
+    </div>
+    <div class="flex-1 pb-8 flex items-center justify-center">
+      <span v-if="state.searchResults?.length === 0"
+        >We could not find any results for "{{ state.searchTerm }}" :((</span
+      >
     </div>
   </div>
 </template>

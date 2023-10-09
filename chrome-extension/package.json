@@ -1,8 +1,8 @@
 {
-  "name": "yourarch-companion",
+  "name": "tracetube-companion",
   "version": "1.0.0",
   "type": "module",
-  "description": "This is the companion extension for [YourArch](https://github.com/victor141516/YourArch) (you can find more info in that repo)",
+  "description": "This is the companion extension for [TraceTube](https://github.com/victor141516/TraceTube) (you can find more info in that repo)",
   "main": "tailwind.config.js",
   "scripts": {
     "tailwind:watch": "npx tailwindcss -i ./tailwind.css -o ./popup.css --watch",
@@ -10,13 +10,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/victor141516/YourArch-ng.git"
+    "url": "git+https://github.com/victor141516/TraceTube-ng.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/victor141516/YourArch-ng/issues"
+    "url": "https://github.com/victor141516/TraceTube-ng/issues"
   },
-  "homepage": "https://github.com/victor141516/YourArch-ng#readme"
+  "homepage": "https://github.com/victor141516/TraceTube-ng#readme"
 }

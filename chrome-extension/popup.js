@@ -27,7 +27,7 @@ window.addEventListener('load', () => {
   const logoutEl = document.getElementById('logout');
 
   getBackendUrl().then((backendUrl) => {
-    urlEl.value = backendUrl ?? 'https://yourarch-ingestor.viti.site';
+    urlEl.value = backendUrl ?? 'https://trace.tube';
   });
 
   onAuthChange();
@@ -55,7 +55,7 @@ window.addEventListener('load', () => {
     const email = formData.get('email');
     const password = formData.get('password');
     const { result, error, data } = await fetch(
-      `${await getBackendUrl()}/auth/login`,
+      `${await getBackendUrl()}/api/auth/login`,
       {
         mode: 'cors',
         method: 'POST',

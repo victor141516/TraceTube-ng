@@ -7,12 +7,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { toggleDark } from '@/main'
 import { store } from '@/store'
-import { useDark, useToggle } from '@vueuse/core'
 import { Github, LifeBuoy, LogOut, Moon, User } from 'lucide-vue-next'
-
-const isDark = useDark({ selector: 'html', attribute: 'class', valueDark: 'dark', valueLight: '' })
-const toggleDark = useToggle(isDark)
 
 const handleLogout = () => {
   store.auth.token = null
@@ -28,13 +25,13 @@ const handleLogout = () => {
       </Avatar>
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-56">
-      <a href="https://github.com/victor141516/YourArch-ng">
+      <a href="https://github.com/victor141516/TraceTube-ng">
         <DropdownMenuItem class="cursor-pointer">
           <Github class="mr-2 h-4 w-4" />
           <span>GitHub</span>
         </DropdownMenuItem>
       </a>
-      <a href="https://github.com/victor141516/YourArch-ng/issues">
+      <a href="https://github.com/victor141516/TraceTube-ng/issues">
         <DropdownMenuItem class="cursor-pointer">
           <LifeBuoy class="mr-2 h-4 w-4" />
           <span>Support</span>

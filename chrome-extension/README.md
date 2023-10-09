@@ -1,6 +1,6 @@
-# YourArch Chrome Extension
+# TraceTube Chrome Extension
 
-This is the companion extension for [YourArch](https://github.com/victor141516/YourArch) (you can find more info in that repo)
+This is the companion extension for [TraceTube](https://github.com/victor141516/TraceTube-ng) (you can find more info in that repo)
 
 
 ## Install
