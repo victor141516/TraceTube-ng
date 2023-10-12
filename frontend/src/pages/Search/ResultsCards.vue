@@ -100,7 +100,7 @@ const handleRight = (videoId: VideoId) => {
                     :name="`slide-${animationDirection}`"
                     @after-leave="() => (runningAnimations[videoId] = false)"
                   >
-                    <cite v-if="!runningAnimations[videoId]" class="text-primary-foreground">{{
+                    <cite v-if="!runningAnimations[videoId]" class="text-primary-foreground w-full">{{
                       getSelectedItem(videoId).text
                     }}</cite>
                   </TransitionGroup>
@@ -130,17 +130,12 @@ const handleRight = (videoId: VideoId) => {
   @apply transition-transform;
 }
 
-.slide-right-enter-from {
-  @apply -translate-x-full;
-}
-.slide-right-leave-to {
-  @apply translate-x-full;
-}
-
-.slide-left-enter-from {
-  @apply translate-x-full;
-}
+.slide-right-enter-from,
 .slide-left-leave-to {
+  @apply translate-x-full;
+}
+.slide-right-leave-to,
+.slide-left-enter-from {
   @apply -translate-x-full;
 }
 
