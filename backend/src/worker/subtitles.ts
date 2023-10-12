@@ -1,4 +1,5 @@
 import { decode } from 'html-entities'
+import { anyOf, char, charNotIn, createRegExp, exactly, maybe, oneOrMore } from 'magic-regexp'
 import striptags from 'striptags'
 
 export class SubtitleError {
@@ -12,6 +13,16 @@ export class UnknownSubtitleError extends SubtitleError {}
 export class MissingCaptionsFieldSubtitleError extends SubtitleError {}
 export class MissingCaptionsSubtitleError extends SubtitleError {}
 export class MissingLanguageSubtitleError extends SubtitleError {}
+
+const captionsJsonCapturer = createRegExp(
+  exactly('{"captionTracks":'),
+  maybe(oneOrMore(char)),
+  exactly('isTranslatable":'),
+  anyOf('true', 'false'),
+  maybe(oneOrMore(charNotIn('}'))),
+  maybe(oneOrMore(charNotIn(']'))),
+  exactly(']'),
+)
 
 function handleRequestError(r: Response) {
   if (r.status === 429) {
@@ -30,12 +41,14 @@ export async function getSubtitles({ videoId }: { videoId: string }) {
 
   // * ensure we have access to captions data
   if (!data.includes('captionTracks'))
-    throw new MissingCaptionsFieldSubtitleError(`Could not find captions for video: ${videoId}`)
+    throw new MissingCaptionsFieldSubtitleError(`Could not find captions for video (1): ${videoId}`)
 
-  const regex = /({"captionTracks":.*isTranslatable":(true|false)}])/
-  const [match] = regex.exec(data)!
+  const captureResult = captionsJsonCapturer.exec(data)!
+  if (!captureResult || !captureResult[0]) {
+    throw new MissingCaptionsFieldSubtitleError(`Could not find captions for video (2): ${videoId}`)
+  }
   const captionTracks = (
-    JSON.parse(`${match}}`) as {
+    JSON.parse(`${captureResult[0]}}`) as {
       captionTracks: {
         languageCode: string
         vssId: string

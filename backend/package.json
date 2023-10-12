@@ -15,6 +15,7 @@
     "elysia": "latest",
     "html-entities": "^2.4.0",
     "limiter-es6-compat": "^2.1.2",
+    "magic-regexp": "^0.7.0",
     "pg": "^8.11.3",
     "striptags": "^3.2.0"
   },

@@ -13,7 +13,7 @@ content-type: application/json
 
 POST http://localhost:3000/api/v1/items HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTEsImVtYWlsIjoicXdlcXdlQHF3ZXF3ZS5jb20iLCJwcmVmZXJyZWRMYW5ndWFnZSI6IiJ9.MRAntmhlp6rb_RktkNlgKXT1-5ud2zbB8vW_ePMq4sw
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MiwiZW1haWwiOiJxd2Vxd2VAcXdlcXdlLmNvbSIsInByZWZlcnJlZExhbmd1YWdlIjoiIn0.S1awtPD4DnV_JuJpBgS0OXIN8XQef464YLxTcWzIQDY
 
 [
     {"videoTitle":"Los MEJORES Cascos Gaming INALÁMBRICOS del 2022","videoId":"Faon55nT8MI","channelId":"/@new3sc"},
@@ -25,12 +25,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTEsImVtYWlsIjoicXdlcXdlQHF3Z
 ### Basic GET items
 
 GET http://localhost:3000/api/v1/search?q=us HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTEsImVtYWlsIjoicXdlcXdlQHF3ZXF3ZS5jb20iLCJwcmVmZXJyZWRMYW5ndWFnZSI6IiJ9.MRAntmhlp6rb_RktkNlgKXT1-5ud2zbB8vW_ePMq4sw
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MiwiZW1haWwiOiJxd2Vxd2VAcXdlcXdlLmNvbSIsInByZWZlcnJlZExhbmd1YWdlIjoiIn0.S1awtPD4DnV_JuJpBgS0OXIN8XQef464YLxTcWzIQDY
 
 
 ### Auth Login
 
-POST http://localhost:3000/auth/login HTTP/1.1
+POST http://localhost:3000/api/auth/login HTTP/1.1
 content-type: application/json
 
 {"email": "qweqwe@qweqwe.com", "password": "qweqwe"}
@@ -38,7 +38,7 @@ content-type: application/json
 
 ### Auth Signup
 
-POST http://localhost:3000/auth/signup HTTP/1.1
+POST http://localhost:3000/api/auth/signup HTTP/1.1
 content-type: application/json
 
 {"email": "qweqwe@qweqwe.com", "password": "qweqwe"}
