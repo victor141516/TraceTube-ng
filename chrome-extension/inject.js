@@ -114,9 +114,37 @@ const doInIframe = async () => {
   }
 };
 
+/** @param {'starting' | 'running' | 'success' | 'error' | null} state */
+const setIndicator = (state) => {
+  const ID = 'tracetube-job-indicator';
+  let indicator = document.getElementById(ID);
+
+  if (state === null) return indicator?.remove();
+
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.setAttribute('id', ID);
+    indicator.style.position = 'absolute';
+    indicator.style.width = '5px';
+    indicator.style.height = '5px';
+    indicator.style.top = '0';
+    indicator.style.left = '0';
+    indicator.style.zIndex = '9999';
+    document.body.appendChild(indicator);
+  }
+
+  indicator.style.backgroundColor = {
+    starting: 'white',
+    running: 'yellow',
+    success: 'green',
+    error: 'red',
+  }[state];
+};
+
 const doInMainFrame = async () => {
   // This will be executed in the main frame to create a iframe containing the history
   log('TraceTube: Injecting iframe started');
+  setIndicator('starting');
 
   const isInsideIframe = window.parent !== window;
   if (isInsideIframe) {
@@ -132,6 +160,7 @@ const doInMainFrame = async () => {
   if (isTimeToScrape || DEBUG) {
     log('TraceTube: Injecting iframe');
     await loadEvent;
+    setIndicator('running');
     injectHistoryIframe();
     log('TraceTube: Waiting for iframe to load (from main frame)');
     window.addEventListener(
@@ -142,7 +171,11 @@ const doInMainFrame = async () => {
           removeIframe();
           log('TraceTube: iframe removed');
           log('TraceTube: Setting last check');
-          chromeStore.set(KEYS.lastCheck, new Date().getTime());
+          await chromeStore.set(KEYS.lastCheck, new Date().getTime());
+          setIndicator('success');
+          setTimeout(() => {
+            setIndicator(null);
+          }, 2500);
         }
       },
       { capture: false }
