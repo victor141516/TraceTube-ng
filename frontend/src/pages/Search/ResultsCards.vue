@@ -79,7 +79,7 @@ const handleRight = (videoId: VideoId) => {
         <CardContent class="space-y-2">
           <div class="relative flex justify-center">
             <img
-              class="flex w-full h-36 object-cover transition-all blur-sm brightness-[25%] contrast-50 saturate-50 group-hover:filter-none"
+              class="flex w-full h-36 object-cover transition-all blur-sm brightness-[25%] contrast-50 saturate-50 group-hover:filter-none rounded-lg"
               :src="`https://img.youtube.com/vi/${videoId}/0.jpg`"
               :alt="items[0].videoTitle"
             />
