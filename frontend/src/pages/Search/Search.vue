@@ -3,14 +3,15 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { SearchRequest, SearchResponse, request } from '@/requests/backend'
+import { store } from '@/store'
 import { useInfiniteScroll } from '@vueuse/core'
 import { Blocks, List, XCircle } from 'lucide-vue-next'
-import { onMounted, reactive, ref, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ResultsCards from './ResultsCards.vue'
 import ResultsList from './ResultsList.vue'
 
-const DEFAULT_VIEW_MODE = 'cards' as const
+const DEFAULT_VIEW_MODE = store.settings.preferredResultsView
 
 const router = useRouter()
 const route = useRoute()
@@ -41,17 +42,14 @@ const state = reactive<{
 const updateUrl = () => {
   const query = {} as { q?: string; v?: string }
   if (state.searchTerm) query.q = state.searchTerm
-  if (state.viewMode !== DEFAULT_VIEW_MODE) query.v = state.viewMode
+  query.v = state.viewMode
   router.replace({ query })
 }
-
-onMounted(() => {
-  updateUrl()
-})
 
 watch(
   () => state.viewMode,
   () => {
+    store.settings.preferredResultsView = state.viewMode
     el.value?.scrollTo(0, 0)
     updateUrl()
   },

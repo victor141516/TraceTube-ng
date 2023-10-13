@@ -9,6 +9,12 @@ const SerializedStore = z.object({
     })
     .optional()
     .default({}),
+  settings: z
+    .object({
+      preferredResultsView: z.enum(['cards', 'list']).optional().default('cards'),
+    })
+    .optional()
+    .default({}),
 })
 
 type Store = z.output<typeof SerializedStore>
