@@ -94,7 +94,7 @@ useInfiniteScroll(
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-8 w-full overflow-y-hidden">
+  <div class="h-full flex flex-col gap-4 lg:gap-8 w-full overflow-y-visible">
     <form @submit.prevent="onSearchClick">
       <Card>
         <CardHeader>

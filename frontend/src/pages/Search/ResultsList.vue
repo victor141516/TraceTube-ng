@@ -6,15 +6,15 @@ const props = defineProps<{ items: SearchResponse }>()
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 w-full">
+  <div class="flex flex-col gap-2 lg:gap-4 w-full">
     <a
       v-for="item of props.items"
       target="_blank"
       :href="`https://www.youtube.com/watch?v=${item.videoId}&t=${item.from}s`"
     >
-      <Card class="flex overflow-hidden transition-shadow hover:shadow hover:bg-primary/5">
+      <Card v-motion-slide-top class="flex overflow-hidden transition-shadow hover:shadow hover:bg-primary/5">
         <img
-          class="h-14 object-cover aspect-[16/9]"
+          class="h-16 object-cover aspect-[16/9]"
           :src="`https://img.youtube.com/vi/${item.videoId}/0.jpg`"
           :alt="item.videoTitle"
         />

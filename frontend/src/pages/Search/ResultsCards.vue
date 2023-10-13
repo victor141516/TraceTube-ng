@@ -54,7 +54,7 @@ const handleRight = (videoId: VideoId) => {
 </script>
 
 <template>
-  <div class="grid grid-cols-search-result gap-4">
+  <div class="grid grid-cols-search-result gap-2 lg:gap-4">
     <a
       v-for="(items, videoId) of groups"
       target="_blank"
@@ -62,7 +62,7 @@ const handleRight = (videoId: VideoId) => {
       @keydown.left="() => handleLeft(videoId)"
       @keydown.right="() => handleRight(videoId)"
     >
-      <Card class="group transition-shadow hover:shadow-lg hover:bg-primary/5">
+      <Card v-motion-slide-top class="group transition-shadow hover:shadow-lg hover:bg-primary/5">
         <CardHeader>
           <CardTitle>
             <div class="flex flex-col">

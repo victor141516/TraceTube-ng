@@ -1,5 +1,5 @@
 import { reactive, watch } from 'vue'
-import z from 'zod'
+import { z } from 'zod'
 
 const SerializedStore = z.object({
   auth: z

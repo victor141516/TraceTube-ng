@@ -40,7 +40,7 @@ const onSignup = async () => {
       <TabsTrigger value="log-in">Log in</TabsTrigger>
       <TabsTrigger value="sign-up">Sign up</TabsTrigger>
     </TabsList>
-    <TabsContent value="log-in">
+    <TabsContent v-motion-slide-left value="log-in">
       <form @submit.prevent="onLogin">
         <Card class="transition-all">
           <CardHeader>
@@ -63,7 +63,7 @@ const onSignup = async () => {
         </Card>
       </form>
     </TabsContent>
-    <TabsContent value="sign-up">
+    <TabsContent v-motion-slide-right value="sign-up">
       <form @submit.prevent="onSignup">
         <Card>
           <CardHeader>
@@ -79,8 +79,8 @@ const onSignup = async () => {
               <Input required v-model="state.password" id="password" type="password" />
             </div>
           </CardContent>
-          <CardFooter>
-            <Button>Send</Button>
+          <CardFooter class="flex">
+            <Button class="w-full">Send</Button>
           </CardFooter>
         </Card>
       </form>

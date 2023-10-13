@@ -12,7 +12,7 @@ const handleAuthChanges = async () => {
   }
 }
 const handleAuthRouteOnAuthenticatedUser = async () => {
-  // TODO: make this think part of the routes meta
+  // TODO: make this thing part of the routes meta
   if (['login', 'signup'].includes((route.name ?? '').toString()) && store.auth.authenticated) {
     await router.push({ name: 'root' })
   }
@@ -50,10 +50,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="p-1 lg:p-4 h-full max-w-screen-lg mx-auto flex flex-col items-center gap-4">
-    <div v-if="store.auth.authenticated" class="self-end">
+  <div class="px-1.5 py-2 lg:p-4 h-full max-w-screen-lg mx-auto flex flex-col items-center gap-2 lg:gap-4">
+    <div v-if="store.auth.authenticated" class="self-end" v-motion-slide-right>
       <UserMenu />
     </div>
-    <RouterView v-if="ready" />
+    <RouterView v-if="ready" v-motion-slide-top />
   </div>
 </template>
