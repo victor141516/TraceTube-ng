@@ -87,12 +87,12 @@ useInfiniteScroll(
       await fetchResults()
     }
   },
-  { distance: 500, interval: 4000 },
+  { distance: 500, interval: 500 },
 )
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-4 lg:gap-8 w-full overflow-y-visible">
+  <div class="flex-1 h-full flex flex-col gap-4 lg:gap-8 w-full overflow-y-hidden">
     <form @submit.prevent="onSearchClick">
       <Card>
         <CardHeader>
@@ -147,10 +147,8 @@ useInfiniteScroll(
       <ResultsList v-if="state.viewMode === 'list'" :items="state.searchResults" />
       <ResultsCards v-if="state.viewMode === 'cards'" :items="state.searchResults" />
     </div>
-    <div class="flex-1 pb-8 flex items-center justify-center">
-      <span v-if="state.searchResults?.length === 0"
-        >We could not find any results for "{{ state.searchTerm }}" :((</span
-      >
+    <div class="flex-1 pb-8 flex items-center justify-center" v-if="state.searchResults?.length === 0">
+      <span>We could not find any results for "{{ state.searchTerm }}" :((</span>
     </div>
   </div>
 </template>
