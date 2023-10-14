@@ -75,6 +75,8 @@ export const start = async () => {
         )
         console.log('Saved result for video:', JSON.stringify(item))
       })
+
+    await sleep(5000)
   }
 }
 
