@@ -14,13 +14,12 @@ let run = true
 
 export const start = async () => {
   let throttling = false
-  let retryCount = 0
+  let retryCount = 1
   while (run) {
     if (throttling) {
       console.log(`Throttling state. Waiting ${retryCount * 5} seconds...`)
       await sleep(retryCount * 5000)
       throttling = false
-      retryCount = 0
       console.log('Throttling state ended. Continuing...')
       continue
     }
@@ -51,6 +50,7 @@ export const start = async () => {
         let subtitles: Awaited<ReturnType<typeof getSubtitles>>
         try {
           subtitles = await getSubtitles({ videoId: item.videoId })
+          retryCount = 0
         } catch (error) {
           if (error instanceof ThrottlingSubtitleError) {
             throttling = true
