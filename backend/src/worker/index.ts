@@ -17,7 +17,7 @@ export const start = async () => {
   let retryCount = 0
   while (run) {
     if (throttling) {
-      console.log(`Throttling state. Waiting ${retryCount} seconds...`)
+      console.log(`Throttling state. Waiting ${retryCount * 5} seconds...`)
       await sleep(retryCount * 5000)
       throttling = false
       retryCount = 0
