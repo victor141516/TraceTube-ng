@@ -41,7 +41,7 @@ const generateQuestionMarksForMultiInsert = <T extends Record<string, unknown>>(
 export const insertQueueItems = (items: Static<typeof postItemsRequestSchema>, userId: number) => {
   checkPool()
   const query = `INSERT INTO "Queue" ("videoId", "title", "channelId", "userId") VALUES ${generateQuestionMarksForMultiInsert(
-    items.map((e) => ({ ...e, userId })),
+    items.map((e) => ({ videoTitle: e.videoTitle, videoId: e.videoId, channelId: e.channelId, userId })),
   )}`
   return pool.query(query, items.map((item) => [item.videoId, item.videoTitle, item.channelId, userId]).flat())
 }
