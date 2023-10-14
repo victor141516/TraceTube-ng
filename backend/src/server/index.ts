@@ -75,7 +75,14 @@ const app = new Elysia()
             '/items',
             async ({ body, user }) => {
               try {
-                await insertQueueItems(body, user.id)
+                const CHUNK_SIZE = 100
+                const chunks = [] as Array<typeof body>
+                for (let i = 0; i < body.length; i += CHUNK_SIZE) {
+                  chunks.push(body.slice(i, i + CHUNK_SIZE))
+                }
+                for (const chunk of chunks) {
+                  await insertQueueItems(chunk, user.id)
+                }
               } catch (error) {
                 console.error('Error while inserting items:', error)
                 throw error
