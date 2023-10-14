@@ -14,11 +14,13 @@ let run = true
 
 export const start = async () => {
   let throttling = false
+  let retryCount = 0
   while (run) {
     if (throttling) {
       console.log('Throttling state. Waiting 5 seconds...')
-      await sleep(5000)
+      await sleep(retryCount * 5000)
       throttling = false
+      retryCount = 0
       console.log('Throttling state ended. Continuing...')
       continue
     }
@@ -52,6 +54,7 @@ export const start = async () => {
         } catch (error) {
           if (error instanceof ThrottlingSubtitleError) {
             throttling = true
+            retryCount++
             console.log('Throttling error...')
             await insertQueueItems([{ ...item, videoTitle: item.title }], item.userId)
             return
