@@ -35,7 +35,7 @@ function handleRequestError(r: Response) {
 }
 
 export async function getSubtitles({ videoId }: { videoId: string }) {
-  const data = (await fetch(`https://youtube.com/watch?v=${videoId}`)
+  const data = (await fetch(`https://www.youtube.com/watch?v=${videoId}`)
     .then((r) => handleRequestError(r))
     .then((r) => r.text())) as string
 
