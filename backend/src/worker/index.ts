@@ -74,9 +74,8 @@ export const start = async () => {
             .map((line) => ({ ...line, text: line.text.toLocaleLowerCase(), videoId })),
         )
         console.log('Saved result for video:', JSON.stringify(item))
+        await sleep(30000)
       })
-
-    await sleep(5000)
   }
 }
 
