@@ -17,8 +17,7 @@ export type CaptionsData = {
 export async function getCaptions({ videoId }: { videoId: string }): Promise<CaptionsData> {
   return await context.wrap({ videoId }, async () => {
     const data = await fetchVideo(videoId)
-
-    const captionTracks = await getCaptionTracks(data)
+    const captionTracks = getCaptionTracks(data)
     const lang = getCaptionsLanguage(captionTracks)
     const captionsUrl = getCaptionsUrl(captionTracks, lang)
     const transcript = await fetchCaptions(captionsUrl)

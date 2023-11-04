@@ -14,23 +14,27 @@ const captionsJsonCapturer = createRegExp(
   exactly(']'),
 )
 
-function handleRequestError(r: Response) {
+async function handleRequestError(r: Response) {
   if (r.status === 429) {
     throw new errors.ThrottlingSubtitleError()
   } else if (r.status !== 200) {
-    throw new errors.UnknownSubtitleError(r)
+    throw new errors.UnknownSubtitleError(`Unknown error: ${r.status}, ${await r.clone().text()}`)
   } else {
     return r
   }
 }
 
-export async function fetchVideo(videoId: string) {
-  return (await fetch(`https://www.youtube.com/watch?v=${videoId}`)
+async function guardedFetch(captionsUrl: string) {
+  return await fetch(captionsUrl)
     .then((r) => handleRequestError(r))
-    .then((r) => r.text())) as string
+    .then((r) => r.text())
 }
 
-export async function getCaptionTracks(data: string) {
+export async function fetchVideo(videoId: string) {
+  return await guardedFetch(`https://www.youtube.com/watch?v=${videoId}`)
+}
+
+export function getCaptionTracks(data: string) {
   // * ensure we have access to captions data
   if (!data.includes('captionTracks'))
     throw new errors.MissingCaptionsFieldSubtitleError(
@@ -60,28 +64,18 @@ export async function getCaptionTracks(data: string) {
 export function getCaptionsLanguage(
   captionTracks: { languageCode: string; vssId: string; kind?: 'asr' | undefined; baseUrl: string }[],
 ) {
+  // Find the first non-generated caption
   const generatedCaptionsLanguage = captionTracks.find((e) => e.kind === 'asr')?.languageCode
-  const nonGeneratedCaptions = captionTracks.filter((e) => e.kind !== 'asr')
-  let theLang: string | undefined
   if (generatedCaptionsLanguage) {
-    // Find the first non-generated caption that matches the generated caption language i.e. the original language
-    theLang = nonGeneratedCaptions.find((e) => e.languageCode === generatedCaptionsLanguage)?.languageCode.slice(0, 2)
-  } else {
-    // If there are no generated captions, just use the first non-generated caption
-    theLang = nonGeneratedCaptions[0]?.languageCode.slice(0, 2)
+    return generatedCaptionsLanguage.slice(0, 2)
   }
 
-  if (!theLang) {
-    // If there are no non-generated captions, use the generated caption
-    theLang = captionTracks.find((e) => e.languageCode === generatedCaptionsLanguage)?.languageCode.slice(0, 2)
-  }
-
-  if (!theLang) {
-    throw new errors.MissingCaptionsSubtitleError(`Could not find captions for ${context.get().videoId}`)
-  }
-  return theLang
+  // If there are no generated captions, just use the first non-generated caption
+  const nonGeneratedCaptions = captionTracks.filter((e) => e.kind !== 'asr')
+  return nonGeneratedCaptions[0]?.languageCode.slice(0, 2)
 }
 
+// TODO: replace this with a proper xml parser
 export function parseCaptions(transcript: string) {
   return transcript
     .replace('<?xml version="1.0" encoding="utf-8" ?><transcript>', '')
@@ -112,19 +106,22 @@ export function parseCaptions(transcript: string) {
 }
 
 export async function fetchCaptions(captionsUrl: string) {
-  return await fetch(captionsUrl)
-    .then((r) => handleRequestError(r))
-    .then((r) => r.text())
+  return guardedFetch(captionsUrl)
 }
 
 export function getCaptionsUrl(
   captionTracks: { languageCode: string; vssId: string; kind?: 'asr' | undefined; baseUrl: string }[],
+  // lang is the generated caption language code
   lang: string,
 ) {
   const captionsData =
+    // .xx (without a.) is the non-generated caption. Prefer this over the generated caption
     captionTracks.find(({ vssId }) => vssId == `.${lang}`) ||
+    // a.xx is the generated caption. Use this if there is no non-generated caption
     captionTracks.find(({ vssId }) => vssId == `a.${lang}`) ||
-    captionTracks.find(({ vssId }) => vssId?.match(`.${lang}`))
+    // we're sure that there is a caption track with the given language code, so the lang must have some locale suffix. use match to find it
+    captionTracks.find(({ vssId }) => vssId?.match(`\.${lang}`))
+
   // * ensure we have found the correct subtitle lang
   if (!captionsData || (captionsData && !captionsData.baseUrl))
     throw new errors.MissingLanguageSubtitleError(`Could not find ${lang} captions for ${context.get().videoId}`)

@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks'
+import * as errors from './errors'
 
 type ContextData = { videoId: string }
 const context = new AsyncLocalStorage<ContextData>()
@@ -8,5 +9,7 @@ export const wrap = <T extends (...args: any[]) => any>(data: ContextData, f: T)
 }
 
 export const get = () => {
-  return context.getStore()!
+  const data = context.getStore()
+  if (!data) throw new errors.MissingContextError('Context not initialized')
+  return data
 }
