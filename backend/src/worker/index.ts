@@ -43,8 +43,13 @@ export const start = async () => {
         console.log('Processing video:', JSON.stringify(item))
         await deleteQueueItem(item.id)
         if (await existsVideoItem({ videoId: item.videoId })) {
+          // TODO:
+          // Check if the video-user pair already exists
+          // If so -->
           console.log('Video already exists. Skipping:', JSON.stringify(item))
           return
+          // If not -->
+          // Create the relation between the user and the video
         }
 
         let subtitles: Awaited<ReturnType<typeof getSubtitles>>
