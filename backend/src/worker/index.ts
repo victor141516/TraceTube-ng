@@ -8,7 +8,7 @@ import {
   insertVideoItem,
 } from '../db'
 import { sleep } from '../utils'
-import { ThrottlingSubtitleError, getSubtitles } from './subtitles'
+import { CaptionsData, ThrottlingSubtitleError, getCaptions } from './captions'
 
 let run = true
 
@@ -52,9 +52,9 @@ export const start = async () => {
           // Create the relation between the user and the video
         }
 
-        let subtitles: Awaited<ReturnType<typeof getSubtitles>>
+        let captions: CaptionsData
         try {
-          subtitles = await getSubtitles({ videoId: item.videoId })
+          captions = await getCaptions({ videoId: item.videoId })
           retryCount = 0
         } catch (error) {
           if (error instanceof ThrottlingSubtitleError) {
@@ -70,7 +70,7 @@ export const start = async () => {
             return
           }
         }
-        const { lang, lines } = subtitles
+        const { lang, lines } = captions
         console.log('Subtitles obtained. Now saving results:', JSON.stringify(item))
         const { id: videoId } = await insertVideoItem({ ...item, lang })
         await insertSubtitlePhraseItems(

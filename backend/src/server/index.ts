@@ -1,111 +1,35 @@
 import { bearer } from '@elysiajs/bearer'
-import { cors } from '@elysiajs/cors'
-import jwt from '@elysiajs/jwt'
-import { Elysia, t } from 'elysia'
-import { CHROME_EXTENSION_URL_ORIGIN, FRONTEND_URL_ORIGIN, JWT_SECRET } from '../config'
-import { getUser, insertQueueItems, saveUser, searchSubtitlePhrasePart } from '../db'
+import { Elysia } from 'elysia'
 import { postItemsRequestSchema } from '../parsers'
-import { getHash, verifyHash } from '../utils/hash'
-
-const JWTPayloadSchema = t.Object({
-  id: t.Integer(),
-  email: t.String({ format: 'email' }),
-  preferredLanguage: t.Optional(t.String()),
-})
+import { jwt } from './jwt'
+import * as handlers from './handlers'
+import { authGuard, searchGuard } from './handlers'
 
 const app = new Elysia()
   .onAfterHandle(({ response }) => ({ result: 'success', data: response }))
   .onError(({ error }) => ({ result: 'error', error: error.message }))
-  .use(
-    jwt<'jwt', typeof JWTPayloadSchema>({
-      name: 'jwt',
-      secret: JWT_SECRET,
-    }),
-  )
+  .use(jwt)
   .use(bearer())
   .group('/api', (api) =>
     api
-      .use(
-        cors({
-          origin: [FRONTEND_URL_ORIGIN, CHROME_EXTENSION_URL_ORIGIN, 'www.youtube.com'].filter(Boolean) as string[],
-          allowedHeaders: ['Content-Type', 'Authorization'],
-        }),
-      )
+      .use(handlers.cors)
       .group('/auth', (auth) =>
-        auth.guard({ body: t.Object({ email: t.String({ format: 'email' }), password: t.String() }) }, (guarded) =>
+        auth.guard(handlers.authBody, (guarded) =>
           guarded
-            .post('/login', async ({ jwt, body }) => {
-              const error = new Error('Invalid email or password')
-              const user = await getUser(body.email)
-              if (!user) throw error
-              const verified = await verifyHash(body.password, user.passwordHash)
-              if (!verified) throw error
-              const token = await jwt.sign({
-                id: user.id,
-                email: body.email,
-                preferredLanguage: user.preferredLanguage ?? '',
-              })
-              return { token }
-            })
-            .post('/signup', async ({ jwt, body }) => {
-              const user = await saveUser({
-                email: body.email,
-                passwordHash: await getHash(body.password),
-              })
-              console.log('New user:', user.email)
-              const token = await jwt.sign({
-                id: user.id,
-                email: body.email,
-                preferredLanguage: user.preferredLanguage ?? '',
-              })
-              return { token }
-            }),
+            .post('/login', async ({ jwt, body }) => await handlers.loginHandler(body, jwt))
+            .post('/signup', async ({ jwt, body }) => await handlers.singupHandler(body, jwt)),
         ),
       )
-      .derive(async ({ jwt, bearer }) => {
-        if (bearer) {
-          const user = await jwt.verify(bearer)
-          if (user) return { user }
-        }
-        throw new Error('Unauthorized')
-      })
+      .derive(async ({ jwt, bearer }) => authGuard({ jwt, bearer }))
       .group('/v1', (v1) =>
         v1
-          .post(
-            '/items',
-            async ({ body, user }) => {
-              try {
-                const CHUNK_SIZE = 100
-                const chunks = [] as Array<typeof body>
-                for (let i = 0; i < body.length; i += CHUNK_SIZE) {
-                  chunks.push(body.slice(i, i + CHUNK_SIZE))
-                }
-                for (const chunk of chunks) {
-                  await insertQueueItems(chunk, user.id)
-                }
-              } catch (error) {
-                console.error('Error while inserting items:', error)
-                throw error
-              }
-              console.log('Queued items:', body.length)
-              return { item: body.length }
-            },
-            { body: postItemsRequestSchema },
-          )
-          .get(
-            '/search',
-            async ({ query: { q, p }, user }) => {
-              return await searchSubtitlePhrasePart(q, { page: p ? Number.parseInt(p) : 1, userId: user.id })
-            },
-            {
-              query: t.Object({ q: t.String(), p: t.Optional(t.String()) }),
-              beforeHandle: ({ query }) => {
-                if (query.p && Number.parseInt(query.p) < 1) {
-                  throw new Error('Page must be a positive integer')
-                }
-              },
-            },
-          ),
+          .post('/items', async ({ body, user }) => await handlers.postItemsHandler(body, user), {
+            body: postItemsRequestSchema,
+          })
+          .get('/search', async ({ query: { q, p }, user }) => await handlers.searchHandler(q, p, user), {
+            query: handlers.searchQueryParams,
+            beforeHandle: ({ query }) => searchGuard(query),
+          }),
       ),
   )
 

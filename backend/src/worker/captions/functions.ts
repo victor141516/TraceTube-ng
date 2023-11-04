@@ -1,18 +1,8 @@
 import { decode } from 'html-entities'
 import { anyOf, char, charNotIn, createRegExp, exactly, maybe, oneOrMore } from 'magic-regexp'
 import striptags from 'striptags'
-
-export class SubtitleError {
-  args: any[]
-  constructor(...args: any[]) {
-    this.args = args
-  }
-}
-export class ThrottlingSubtitleError extends SubtitleError {}
-export class UnknownSubtitleError extends SubtitleError {}
-export class MissingCaptionsFieldSubtitleError extends SubtitleError {}
-export class MissingCaptionsSubtitleError extends SubtitleError {}
-export class MissingLanguageSubtitleError extends SubtitleError {}
+import * as errors from './errors'
+import * as context from './context'
 
 const captionsJsonCapturer = createRegExp(
   exactly('{"captionTracks":'),
@@ -26,26 +16,32 @@ const captionsJsonCapturer = createRegExp(
 
 function handleRequestError(r: Response) {
   if (r.status === 429) {
-    throw new ThrottlingSubtitleError()
+    throw new errors.ThrottlingSubtitleError()
   } else if (r.status !== 200) {
-    throw new UnknownSubtitleError(r)
+    throw new errors.UnknownSubtitleError(r)
   } else {
     return r
   }
 }
 
-export async function getSubtitles({ videoId }: { videoId: string }) {
-  const data = (await fetch(`https://www.youtube.com/watch?v=${videoId}`)
+export async function fetchVideo(videoId: string) {
+  return (await fetch(`https://www.youtube.com/watch?v=${videoId}`)
     .then((r) => handleRequestError(r))
     .then((r) => r.text())) as string
+}
 
+export async function getCaptionTracks(data: string) {
   // * ensure we have access to captions data
   if (!data.includes('captionTracks'))
-    throw new MissingCaptionsFieldSubtitleError(`Could not find captions for video (1): ${videoId}`)
+    throw new errors.MissingCaptionsFieldSubtitleError(
+      `Could not find captions for video (1): ${context.get().videoId}`,
+    )
 
   const captureResult = captionsJsonCapturer.exec(data)!
   if (!captureResult || !captureResult[0]) {
-    throw new MissingCaptionsFieldSubtitleError(`Could not find captions for video (2): ${videoId}`)
+    throw new errors.MissingCaptionsFieldSubtitleError(
+      `Could not find captions for video (2): ${context.get().videoId}`,
+    )
   }
   const captionTracks = (
     JSON.parse(`${captureResult[0]}}`) as {
@@ -58,6 +54,12 @@ export async function getSubtitles({ videoId }: { videoId: string }) {
     }
   ).captionTracks
 
+  return captionTracks
+}
+
+export function getCaptionsLanguage(
+  captionTracks: { languageCode: string; vssId: string; kind?: 'asr' | undefined; baseUrl: string }[],
+) {
   const generatedCaptionsLanguage = captionTracks.find((e) => e.kind === 'asr')?.languageCode
   const nonGeneratedCaptions = captionTracks.filter((e) => e.kind !== 'asr')
   let theLang: string | undefined
@@ -75,22 +77,13 @@ export async function getSubtitles({ videoId }: { videoId: string }) {
   }
 
   if (!theLang) {
-    throw new MissingCaptionsSubtitleError(`Could not find captions for ${videoId}`)
+    throw new errors.MissingCaptionsSubtitleError(`Could not find captions for ${context.get().videoId}`)
   }
+  return theLang
+}
 
-  const subtitle =
-    captionTracks.find(({ vssId }) => vssId == `.${theLang}`) ||
-    captionTracks.find(({ vssId }) => vssId == `a.${theLang}`) ||
-    captionTracks.find(({ vssId }) => vssId?.match(`.${theLang}`))
-
-  // * ensure we have found the correct subtitle lang
-  if (!subtitle || (subtitle && !subtitle.baseUrl))
-    throw new MissingLanguageSubtitleError(`Could not find ${theLang} captions for ${videoId}`)
-
-  const transcript = await fetch(subtitle.baseUrl)
-    .then((r) => handleRequestError(r))
-    .then((r) => r.text())
-  const lines = transcript
+export function parseCaptions(transcript: string) {
+  return transcript
     .replace('<?xml version="1.0" encoding="utf-8" ?><transcript>', '')
     .replace('</transcript>', '')
     .split('</text>')
@@ -116,6 +109,25 @@ export async function getSubtitles({ videoId }: { videoId: string }) {
         text,
       }
     })
+}
 
-  return { lang: theLang, lines }
+export async function fetchCaptions(captionsUrl: string) {
+  return await fetch(captionsUrl)
+    .then((r) => handleRequestError(r))
+    .then((r) => r.text())
+}
+
+export function getCaptionsUrl(
+  captionTracks: { languageCode: string; vssId: string; kind?: 'asr' | undefined; baseUrl: string }[],
+  lang: string,
+) {
+  const captionsData =
+    captionTracks.find(({ vssId }) => vssId == `.${lang}`) ||
+    captionTracks.find(({ vssId }) => vssId == `a.${lang}`) ||
+    captionTracks.find(({ vssId }) => vssId?.match(`.${lang}`))
+  // * ensure we have found the correct subtitle lang
+  if (!captionsData || (captionsData && !captionsData.baseUrl))
+    throw new errors.MissingLanguageSubtitleError(`Could not find ${lang} captions for ${context.get().videoId}`)
+
+  return captionsData.baseUrl
 }
