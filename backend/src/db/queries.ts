@@ -115,9 +115,7 @@ export const saveUser = (user: UserInput) => {
 
 export const getUser = (email: string) => {
   return withPool(async (pool) => {
-    const query = `
-    SELECT * FROM "Users" WHERE "email" = $1;
-  `
+    const query = `SELECT * FROM "Users" WHERE "email" = $1;`
     return pool.query(query, [email]).then((res) => res.rows[0] as UserRow)
   })
 }
