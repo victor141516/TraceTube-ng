@@ -13,6 +13,7 @@
     "@supercharge/promise-pool": "^3.1.0",
     "@types/pg": "^8.10.3",
     "elysia": "latest",
+    "elysia-requestid": "1.0.5",
     "html-entities": "^2.4.0",
     "limiter-es6-compat": "^2.1.2",
     "magic-regexp": "^0.7.0",

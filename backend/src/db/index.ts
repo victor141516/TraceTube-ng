@@ -9,6 +9,7 @@ import type {
   UserRow,
   VideoItemInput,
 } from './types'
+import { getContext } from '../utils/context'
 
 let pool: Pool
 export const initialize = ({ databaseUri }: { databaseUri: string }) => {
@@ -117,7 +118,7 @@ export const saveUser = (user: UserInput) => {
   `
   return pool
     .query(query, [user.email, user.passwordHash, user.preferredLanguage])
-    .then((res) => ({ ...user, id: res.rows[0].id } as UserRow))
+    .then((res) => ({ ...user, id: res.rows[0].id }) as UserRow)
 }
 
 export const getUser = (email: string) => {
