@@ -1,4 +1,4 @@
-import { getUser, insertQueueItems, saveUser, searchSubtitlePhrasePart } from '../db'
+import * as db from '../db'
 import { getHash, verifyHash } from '../utils/hash'
 import { JWT, JWTObject } from './jwt'
 import { CHROME_EXTENSION_URL_ORIGIN, FRONTEND_URL_ORIGIN } from '../config'
@@ -7,7 +7,7 @@ import { cors as corsGenerator } from '@elysiajs/cors'
 
 export async function loginHandler(body: { email: string; password: string }, jwt: JWT) {
   const error = new Error('Invalid email or password')
-  const user = await getUser(body.email)
+  const user = await db.user.get(body.email)
   if (!user) throw error
   const verified = await verifyHash(body.password, user.passwordHash)
   if (!verified) throw error
@@ -20,7 +20,7 @@ export async function loginHandler(body: { email: string; password: string }, jw
 }
 
 export async function singupHandler(body: { email: string; password: string }, jwt: JWT) {
-  const user = await saveUser({
+  const user = await db.user.insert({
     email: body.email,
     passwordHash: await getHash(body.password),
   })
@@ -34,7 +34,7 @@ export async function singupHandler(body: { email: string; password: string }, j
 }
 
 export async function searchHandler(q: string, p: string | undefined, user: JWTObject) {
-  return await searchSubtitlePhrasePart(q, { page: p ? Number.parseInt(p) : 1, userId: user.id })
+  return await db.subtitlePhrase.searchPart(q, { page: p ? Number.parseInt(p) : 1, userId: user.id })
 }
 
 export async function postItemsHandler(
@@ -48,7 +48,7 @@ export async function postItemsHandler(
       chunks.push(body.slice(i, i + CHUNK_SIZE))
     }
     for (const chunk of chunks) {
-      await insertQueueItems(chunk, user.id)
+      await db.queue.insert(chunk, user.id)
     }
   } catch (error) {
     console.error('Error while inserting items:', error)

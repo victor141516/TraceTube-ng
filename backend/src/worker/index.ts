@@ -1,12 +1,5 @@
 import { PromisePool } from '@supercharge/promise-pool'
-import {
-  deleteQueueItem,
-  existsVideoItem,
-  getQueueItems,
-  insertQueueItems,
-  insertSubtitlePhraseItems,
-  insertVideoItem,
-} from '../db'
+import * as db from '../db'
 import { sleep } from '../utils'
 import { CaptionsData, ThrottlingSubtitleError, getCaptions } from './captions'
 
@@ -23,7 +16,7 @@ export const start = async () => {
       console.log('Throttling state ended. Continuing...')
       continue
     }
-    const items = await getQueueItems()
+    const items = await db.queue.get()
     if (items.length === 0) {
       console.log('No items in queue. Waiting 5 seconds...')
       await sleep(5000)
@@ -41,8 +34,8 @@ export const start = async () => {
         if (throttling) return
 
         console.log('Processing video:', JSON.stringify(item))
-        await deleteQueueItem(item.id)
-        if (await existsVideoItem({ videoId: item.videoId })) {
+        await db.queue.delete(item.id)
+        if (await db.video.exists({ videoId: item.videoId })) {
           // TODO:
           // Check if the video-user pair already exists
           // If so -->
@@ -61,19 +54,19 @@ export const start = async () => {
             throttling = true
             retryCount++
             console.log('Throttling error...')
-            await insertQueueItems([{ ...item, videoTitle: item.title }], item.userId)
+            await db.queue.insert([{ ...item, videoTitle: item.title }], item.userId)
             return
           } else {
             console.error('Error while getting subtitles:', error)
             // insert video item so we don't try to get subtitles again
-            await insertVideoItem({ ...item, lang: '' })
+            await db.video.insert({ ...item, lang: '' })
             return
           }
         }
         const { lang, lines } = captions
         console.log('Subtitles obtained. Now saving results:', JSON.stringify(item))
-        const { id: videoId } = await insertVideoItem({ ...item, lang })
-        await insertSubtitlePhraseItems(
+        const { id: videoId } = await db.video.insert({ ...item, lang })
+        await db.subtitlePhrase.insert(
           lines
             .filter((line) => line.text !== '')
             .map((line) => ({ ...line, text: line.text.toLocaleLowerCase(), videoId })),
