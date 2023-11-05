@@ -51,7 +51,12 @@ export const existsVideoItem = async ({ videoId }: { videoId: string }) => {
 
 export const insertVideoItem = async (item: VideoItemInput) => {
   return withPool(async (pool) => {
-    const query = `INSERT INTO "Videos" ("videoId", "title", "channelId", "lang", "userId") VALUES ($1, $2, $3, $4, $5) RETURNING "id"`
+    const query = `
+    WITH "newVideo" AS (
+      INSERT INTO "Videos" ("videoId", "title", "channelId", "lang") VALUES ($1, $2, $3, $4) RETURNING "id"
+    )
+    INSERT INTO "UsersVideosRelation" ("userId", "videoId") VALUES ($5, (SELECT "id" FROM "newVideo")) RETURNING "videoId"
+    `
     const { rows } = await pool.query(query, [item.videoId, item.title, item.channelId, item.lang, item.userId])
     return rows[0] as { id: number }
   })
@@ -76,21 +81,25 @@ export const deleteQueueItem = (id: number) => {
 export const searchSubtitlePhrasePart = async (text: string, { page, userId }: { page: number; userId: number }) => {
   return withPool(async (pool) => {
     const query = `
+    WITH "UserVideoIds" AS (
+      SELECT "videoId" FROM "UsersVideosRelation" WHERE "userId" = $3
+    ), "UserVideos" AS (
+      SELECT * FROM "Videos" WHERE "id" IN (SELECT "videoId" FROM "UserVideoIds")
+    )
     SELECT
       "SubtitlePhrases"."id" as "cursor",
       "SubtitlePhrases"."from",
       "SubtitlePhrases"."duration",
       "SubtitlePhrases"."text",
-      "Videos"."videoId",
-      "Videos"."lang",
-      "Videos"."title" AS "videoTitle",
-      "Videos"."channelId"
+      "UserVideos"."videoId",
+      "UserVideos"."lang",
+      "UserVideos"."title" AS "videoTitle",
+      "UserVideos"."channelId"
     FROM
-      "Videos"
-      JOIN "SubtitlePhrases" ON "Videos"."id" = "SubtitlePhrases"."videoId"
+      "UserVideos"
+      JOIN "SubtitlePhrases" ON "UserVideos"."id" = "SubtitlePhrases"."videoId"
     WHERE
       "SubtitlePhrases"."id" > $2
-      AND "Videos"."userId" = $3
       AND text
       LIKE '%' || $1 || '%'
     LIMIT 50
