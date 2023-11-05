@@ -8,6 +8,10 @@ export const queue = {
 export const video = {
   exists: queries.existsVideoItem,
   insert: queries.insertVideoItem,
+  userRelation: {
+    exists: queries.existsVideoUserRelation,
+    assign: queries.assignVideoToUser,
+  },
 }
 export const subtitlePhrase = {
   insert: queries.insertSubtitlePhraseItems,

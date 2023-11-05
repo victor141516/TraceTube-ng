@@ -1,7 +1,7 @@
 import { expect, it, describe, mock, afterEach } from 'bun:test'
 import * as functions from '../functions'
 import * as errors from '../errors'
-import * as context from '../context'
+import { getContext, MissingContextError } from '../../../utils/context'
 import * as testData from './data'
 
 const restoreFetch = () => {
@@ -12,6 +12,8 @@ const restoreFetch = () => {
 const mockFetch = (code: number, data: string) => {
   globalThis.fetch = mock(async () => new Response(data, { status: code }))
 }
+
+const context = getContext()
 const mockContext = (f: Parameters<typeof context.wrap>[1]) => context.wrap({ videoId: 'the-video-id' }, f)
 
 describe('context', () => {
@@ -25,7 +27,7 @@ describe('context', () => {
     it('should throw', () => {
       expect(() => {
         context.get()
-      }).toThrow(errors.MissingContextError as ErrorConstructor)
+      }).toThrow(MissingContextError as ErrorConstructor)
     })
   })
 })

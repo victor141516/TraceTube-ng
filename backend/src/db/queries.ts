@@ -55,10 +55,35 @@ export const insertVideoItem = async (item: VideoItemInput) => {
     WITH "newVideo" AS (
       INSERT INTO "Videos" ("videoId", "title", "channelId", "lang") VALUES ($1, $2, $3, $4) RETURNING "id"
     )
-    INSERT INTO "UsersVideosRelation" ("userId", "videoId") VALUES ($5, (SELECT "id" FROM "newVideo")) RETURNING "videoId"
+    INSERT INTO "UsersVideosRelation" ("userId", "videoId") VALUES ($5, (SELECT "id" FROM "newVideo")) RETURNING "videoId";
     `
     const { rows } = await pool.query(query, [item.videoId, item.title, item.channelId, item.lang, item.userId])
     return rows[0] as { id: number }
+  })
+}
+
+export const existsVideoUserRelation = async ({ videoId, userId }: { videoId: string; userId: number }) => {
+  return withPool(async (pool) => {
+    const query = `
+      WITH "existingVideo" AS (
+        SELECT "id" FROM "Videos" WHERE "videoId" = $1
+      )
+      SELECT "id" FROM "UsersVideosRelation" WHERE "userId" = $2 AND "videoId" = (SELECT "id" FROM "existingVideo");
+    `
+    const { rowCount } = await pool.query(query, [videoId, userId])
+    return rowCount > 0
+  })
+}
+
+export const assignVideoToUser = async ({ videoId, userId }: { videoId: string; userId: number }) => {
+  return withPool(async (pool) => {
+    const query = `
+    WITH "existingVideo" AS (
+      SELECT "id" FROM "Videos" WHERE "videoId" = $1
+    )
+    INSERT INTO "UsersVideosRelation" ("userId", "videoId") VALUES ($2, (SELECT "id" FROM "existingVideo"));
+    `
+    await pool.query(query, [videoId, userId])
   })
 }
 

@@ -2,7 +2,9 @@ import { decode } from 'html-entities'
 import { anyOf, char, charNotIn, createRegExp, exactly, maybe, oneOrMore } from 'magic-regexp'
 import striptags from 'striptags'
 import * as errors from './errors'
-import * as context from './context'
+import { getContext } from '../../utils/context'
+
+const context = getContext<{ videoId: string }>()
 
 const captionsJsonCapturer = createRegExp(
   exactly('{"captionTracks":'),
