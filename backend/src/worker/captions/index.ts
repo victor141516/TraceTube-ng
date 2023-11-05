@@ -1,4 +1,5 @@
 export * from './errors'
+import { getContext } from '../../utils/context'
 import {
   fetchCaptions,
   fetchVideo,
@@ -7,12 +8,12 @@ import {
   getCaptionsUrl,
   parseCaptions,
 } from './functions'
-import * as context from './context'
 
 export type CaptionsData = {
   lang: string
   lines: Array<{ from: string; duration: string; text: string }>
 }
+const context = getContext<{ videoId: string }>()
 
 export async function getCaptions({ videoId }: { videoId: string }): Promise<CaptionsData> {
   return await context.wrap({ videoId }, async () => {

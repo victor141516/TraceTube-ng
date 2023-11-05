@@ -1,9 +1,10 @@
 import { PromisePool } from '@supercharge/promise-pool'
 import * as db from '../db'
 import { sleep } from '../utils'
-import { Context } from '../utils/context'
+import { getContext } from '../utils/context'
 import { CaptionsData, ThrottlingSubtitleError, getCaptions } from './captions'
 
+const context = getContext()
 let run = true
 
 export const start = async () => {
@@ -31,8 +32,7 @@ export const start = async () => {
         throw error
       })
       .process(async (item) => {
-        const context = new Context({ videoId: item.videoId })
-        await context.wrap(async () => {
+        await context.wrap({ videoId: item.videoId }, async () => {
           if (!run) return
           if (throttling) return
 
