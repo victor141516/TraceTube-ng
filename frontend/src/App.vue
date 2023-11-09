@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="tsx">
 import UserMenu from '@/components/sections/UserMenu.vue'
 import { store } from '@/store'
 import { onMounted, ref, watch } from 'vue'
