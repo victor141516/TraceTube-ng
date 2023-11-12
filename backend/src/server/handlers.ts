@@ -1,9 +1,9 @@
+import { cors as corsGenerator } from '@elysiajs/cors'
+import { t } from 'elysia'
+import { CHROME_EXTENSION_URL_ORIGIN, FRONTEND_URL_ORIGIN } from '../config'
 import * as db from '../db'
 import { getHash, verifyHash } from '../utils/hash'
 import { JWT, JWTObject } from './jwt'
-import { CHROME_EXTENSION_URL_ORIGIN, FRONTEND_URL_ORIGIN } from '../config'
-import { t } from 'elysia'
-import { cors as corsGenerator } from '@elysiajs/cors'
 
 export async function loginHandler(body: { email: string; password: string }, jwt: JWT) {
   const error = new Error('Invalid email or password')
