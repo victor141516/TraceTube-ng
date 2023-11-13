@@ -136,7 +136,7 @@ export const searchSubtitlePhrasePart = async (text: string, { page, userId }: {
 
 export const saveUser = (user: NewUser) => {
   return withDb(async (db) => {
-    return await db.insert(Users).values(user).returning({ id: Users.id })
+    return (await db.insert(Users).values(user).returning())[0]
   })
 }
 

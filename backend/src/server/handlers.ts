@@ -1,26 +1,25 @@
 import { cors as corsGenerator } from '@elysiajs/cors'
 import { t } from 'elysia'
 import { CHROME_EXTENSION_URL_ORIGIN, FRONTEND_URL_ORIGIN } from '../config'
-import * as db from '../db'
+import type { Operations } from '../db'
 import { getHash, verifyHash } from '../utils/hash'
 import { JWT, JWTObject } from './jwt'
 
-export async function loginHandler(body: { email: string; password: string }, jwt: JWT) {
+export async function loginHandler(operations: Operations, body: { email: string; password: string }, jwt: JWT) {
   const error = new Error('Invalid email or password')
-  const user = await db.user.get(body.email)
+  const user = await operations.user.get(body.email)
   if (!user) throw error
   const verified = await verifyHash(body.password, user.passwordHash)
   if (!verified) throw error
   const token = await jwt.sign({
     id: user.id,
     email: body.email,
-    preferredLanguage: user.preferredLanguage ?? '',
   })
   return { token }
 }
 
-export async function singupHandler(body: { email: string; password: string }, jwt: JWT) {
-  const user = await db.user.insert({
+export async function singupHandler(operations: Operations, body: { email: string; password: string }, jwt: JWT) {
+  const user = await operations.user.insert({
     email: body.email,
     passwordHash: await getHash(body.password),
   })
@@ -28,16 +27,16 @@ export async function singupHandler(body: { email: string; password: string }, j
   const token = await jwt.sign({
     id: user.id,
     email: body.email,
-    preferredLanguage: user.preferredLanguage ?? '',
   })
   return { token }
 }
 
-export async function searchHandler(q: string, p: string | undefined, user: JWTObject) {
-  return await db.subtitlePhrase.searchPart(q, { page: p ? Number.parseInt(p) : 1, userId: user.id })
+export async function searchHandler(operations: Operations, q: string, p: string | undefined, user: JWTObject) {
+  return await operations.subtitlePhrase.searchPart(q, { page: p ? Number.parseInt(p) : 1, userId: user.id })
 }
 
 export async function postItemsHandler(
+  operations: Operations,
   body: { videoTitle: string; videoId: string; channelId: string }[],
   user: JWTObject,
 ) {
@@ -48,7 +47,7 @@ export async function postItemsHandler(
       chunks.push(body.slice(i, i + CHUNK_SIZE))
     }
     for (const chunk of chunks) {
-      await db.queue.insert(chunk, user.id)
+      await operations.queue.insert(chunk, user.id)
     }
   } catch (error) {
     console.error('Error while inserting items:', error)
@@ -66,7 +65,7 @@ export async function authGuard({ jwt, bearer }: { jwt: JWT; bearer?: string }) 
   throw new Error('Unauthorized')
 }
 
-export function searchGuard(query: { p?: string | undefined; q: string }) {
+export function searchGuard(query: { p?: string; q: string }) {
   if (query.p && Number.parseInt(query.p) < 1) {
     throw new Error('Page must be a positive integer')
   }
