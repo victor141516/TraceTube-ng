@@ -1,6 +1,8 @@
+import { NodePgDatabase, drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
 let pool: Pool
+let client: NodePgDatabase
 export const initialize = ({ databaseUri }: { databaseUri: string }) => {
   pool = new Pool({
     connectionString: databaseUri,
@@ -8,6 +10,7 @@ export const initialize = ({ databaseUri }: { databaseUri: string }) => {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
   })
+  client = drizzle(pool)
 }
 
 const checkPool = () => {
@@ -16,7 +19,12 @@ const checkPool = () => {
   }
 }
 
-export const withPool = <T,>(fn: (pool: Pool) => Promise<T>) => {
+export const withDb = <T>(fn: (pool: NodePgDatabase) => Promise<T>) => {
   checkPool()
-  return fn(pool)
+  return fn(client)
+}
+
+export const end = () => {
+  checkPool()
+  pool.end()
 }

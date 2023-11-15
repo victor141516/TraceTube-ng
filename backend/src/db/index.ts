@@ -1,2 +1,1 @@
-export * from './models'
-export { initialize } from './pool'
+export * from './drizzle'

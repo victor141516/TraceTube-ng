@@ -12,6 +12,7 @@
     "@sinclair/typebox": "^0.31.17",
     "@supercharge/promise-pool": "^3.1.0",
     "@types/pg": "^8.10.3",
+    "drizzle-orm": "^0.29.0",
     "elysia": "latest",
     "html-entities": "^2.4.0",
     "limiter-es6-compat": "^2.1.2",

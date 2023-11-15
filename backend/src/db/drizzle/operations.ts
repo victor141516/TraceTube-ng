@@ -21,3 +21,10 @@ export const user = {
   insert: queries.saveUser,
   get: queries.getUser,
 }
+
+export type Operations = {
+  queue: typeof queue
+  video: typeof video
+  subtitlePhrase: typeof subtitlePhrase
+  user: typeof user
+}
